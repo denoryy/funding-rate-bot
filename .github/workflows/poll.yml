@@ -1,1 +1,41 @@
+name: Funding Rate Bot
 
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bot (single poll)
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          EXCHANGES: binance,bybit,okx,kucoin,bitget,gateio
+          DB_PATH: funding_bot.db
+          LOG_LEVEL: INFO
+        run: python run_once.py
+
+      - name: Save deduplication database back to repo
+        run: |
+          git config user.name "funding-rate-bot"
+          git config user.email "actions@github.com"
+          git add funding_bot.db
+          git diff --cached --quiet && echo "Нет изменений в базе — пропускаем коммит" || git commit -m "Update dedup database [skip ci]"
+          git push
