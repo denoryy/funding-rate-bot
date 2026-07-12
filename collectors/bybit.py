@@ -12,8 +12,16 @@ URL = "https://api.bybit.com/v5/announcements/index"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                   "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "application/json",
+    "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.bybit.com/",
+    "Origin": "https://www.bybit.com",
+    "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
 }
 
 
@@ -24,8 +32,6 @@ class BybitCollector(BaseCollector):
         params = {
             "locale": "en-US",
             "limit": 30,
-            # type=new_crypto|latest_bybit_news|...; оставляем пустым, чтобы получить всё,
-            # фильтрация по ключевым словам funding rate идёт дальше в classifier.py
         }
         items: List[NewsItem] = []
         try:
