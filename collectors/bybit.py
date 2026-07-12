@@ -9,6 +9,13 @@ log = logging.getLogger(__name__)
 # https://bybit-exchange.github.io/docs/v5/announcement
 URL = "https://api.bybit.com/v5/announcements/index"
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
 
 class BybitCollector(BaseCollector):
     name = "Bybit"
@@ -22,7 +29,7 @@ class BybitCollector(BaseCollector):
         }
         items: List[NewsItem] = []
         try:
-            async with session.get(URL, params=params, timeout=15) as resp:
+            async with session.get(URL, params=params, headers=HEADERS, timeout=15) as resp:
                 if resp.status != 200:
                     log.warning("Bybit announcements HTTP %s", resp.status)
                     return items
