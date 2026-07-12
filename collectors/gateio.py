@@ -27,7 +27,7 @@ class GateioCollector(BaseCollector):
             "Accept-Language": "en-US,en;q=0.9",
         }
         try:
-            async with session.get(ANNOUNCEMENTS_URL, headers=headers, timeout=15) as resp:
+            async with session.get(ANNOUNCEMENTS_URL, headers=headers, timeout=25) as resp:
                 if resp.status != 200:
                     log.warning("Gate.io announcements HTTP %s", resp.status)
                     return items
