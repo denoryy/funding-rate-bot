@@ -15,15 +15,7 @@ class OkxCollector(BaseCollector):
 
     async def fetch(self, session) -> List[NewsItem]:
         items: List[NewsItem] = []
-        # У OKX объявления разбиты на категории (annType). Изменения формулы
-        # funding rate публикуются в категории "Derivatives" — это видно по
-        # структуре их Support Center: Support center → Announcements →
-        # Derivatives (slug: announcements-derivatives). Дополнительно берём
-        # "Trading updates" и общий список последних объявлений — для более
-        # широкого охвата на случай, если что-то попадёт в другую категорию.
         params_list = [
-            {"annType": "announcements-derivatives"},
-            {"annType": "announcements-trading-updates"},
             {},
         ]
         headers = {"Accept-Language": "en-US,en;q=0.9"}
