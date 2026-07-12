@@ -9,11 +9,12 @@ from .base import BaseCollector, NewsItem
 
 log = logging.getLogger(__name__)
 
-# У Bitget нет официального публичного REST API для объявлений (в отличие от
-# Bybit/OKX/KuCoin), поэтому здесь используется скрейпинг страницы поиска по
-# Support Center. Это НЕОФИЦИАЛЬНЫЙ способ и может сломаться при редизайне
-# сайта — тогда потребуется поправить SEARCH_URL/паттерн ниже.
-SEARCH_URL = "https://www.bitget.com/support/search"
+# У Bitget нет официального публичного REST API для объявлений, но зато есть
+# конкретный раздел Support Center — "Product updates → Futures", где
+# публикуются именно нужные новости ("Bitget to adjust funding rate interval
+# for..."). В отличие от прежней (неверной) попытки со страницей поиска, эта
+# страница отдаёт полноценный HTML со списком статей и датами.
+SECTION_URL = "https://www.bitget.com/support/sections/12508313445234"
 ARTICLE_PATTERN = re.compile(r"/support/articles/(\d+)")
 
 
@@ -22,15 +23,14 @@ class BitgetCollector(BaseCollector):
 
     async def fetch(self, session) -> List[NewsItem]:
         items: List[NewsItem] = []
-        params = {"keyword": "funding rate", "lang": "en_US"}
         headers = {
             "User-Agent": "Mozilla/5.0 (compatible; FundingRateBot/1.0)",
             "Accept-Language": "en-US,en;q=0.9",
         }
         try:
-            async with session.get(SEARCH_URL, params=params, headers=headers, timeout=15) as resp:
+            async with session.get(SECTION_URL, headers=headers, timeout=20) as resp:
                 if resp.status != 200:
-                    log.warning("Bitget search HTTP %s", resp.status)
+                    log.warning("Bitget section HTTP %s", resp.status)
                     return items
                 html = await resp.text()
         except Exception as e:
@@ -66,8 +66,8 @@ class BitgetCollector(BaseCollector):
         if not items:
             log.warning(
                 "Bitget: 0 совпадений в HTML (длина ответа: %d байт). "
-                "Вероятно, список объявлений рендерится через JavaScript и "
-                "недоступен в исходном HTML — см. примечание в README про Bitget/Gate.io.",
+                "Возможно, изменилась структура страницы — нужно перепроверить "
+                "SECTION_URL/ARTICLE_PATTERN в collectors/bitget.py.",
                 len(html),
             )
         return items
